@@ -14,6 +14,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
+//go:embed public
+var FS embed.FS
+
 func main() {
 
 	if err := initAll(); err != nil {
@@ -22,8 +25,9 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
-	router.Handle("/*", http.StripPrefix("/", http.FileServerFS(http.FS(FS))))
+	router.Handle("/*", http.StripPrefix("/", http.FileServerFS(FS)))
 	router.Get("/", handler.HTTPErrorHandler(handler.HandleHomeIndex))
+	router.Post("/searchData", handler.HTTPErrorHandler(handler.HandleSearchData))
 
 	slog.Info("server listening on", "port", os.Getenv("HTTP_PORT"))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), router))
@@ -37,4 +41,3 @@ func initAll() error {
 
 	return nil
 }
-

@@ -1,8 +1,6 @@
 package types
 
-import "net/http"
-
 type SearchData struct {
-	Text string
+	Text    string
 	Checked bool
 }
