@@ -1,9 +1,12 @@
 package home
 
-import "go-template/view/layout"
+import "github.com/NachoxMacho/commnsense/view/layout"
+import "github.com/NachoxMacho/commnsense/types"
+import "github.com/NachoxMacho/commnsense/view/ui"
 
-templ Index() {
+templ Index(data []types.SearchData) {
     @layout.App(true, true) {
         <div class="text-primary">hello there, general kenobi</div>
+        @ui.SearchDropDown(data)
     }
 }
