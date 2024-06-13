@@ -17,6 +17,13 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+*_templ.go*
+node_modules
+bin/
+.env
+tmp/
+public/styles.css
+
 # Go workspace file
 go.work
 go.work.sum

@@ -1,2 +1,2 @@
-# commnsense
-DNS management util for OPNSense
+# go-template
+Golang Full stack template

@@ -1,0 +1,9 @@
+package home
+
+import "go-template/view/layout"
+
+templ Index() {
+    @layout.App(true, true) {
+        <div class="text-primary">hello there, general kenobi</div>
+    }
+}
