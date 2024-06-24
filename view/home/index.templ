@@ -4,9 +4,9 @@ import "github.com/NachoxMacho/commnsense/view/layout"
 import "github.com/NachoxMacho/commnsense/types"
 import "github.com/NachoxMacho/commnsense/view/ui"
 
-templ Index(data []types.SearchData) {
+templ Index(data []types.SearchData, initialValue string) {
     @layout.App(true, true) {
         <div class="text-primary">hello there, general kenobi</div>
-        @ui.SearchDropDown(data)
+        @ui.SearchDropDown(data, initialValue)
     }
 }

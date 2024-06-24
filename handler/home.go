@@ -23,5 +23,5 @@ var test = []types.SearchData{
 }
 
 func HandleHomeIndex(w http.ResponseWriter, r *http.Request) error {
-	return home.Index(test).Render(r.Context(), w)
+	return home.Index(test, "").Render(r.Context(), w)
 }

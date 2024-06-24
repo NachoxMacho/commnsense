@@ -27,6 +27,7 @@ func main() {
 	router.Use(middleware.Logger)
 	router.Handle("/*", http.StripPrefix("/", http.FileServerFS(FS)))
 	router.Get("/", handler.HTTPErrorHandler(handler.HandleHomeIndex))
+	router.Get("/dropdown", handler.HTTPErrorHandler(handler.HandleDropDown))
 	router.Post("/searchData", handler.HTTPErrorHandler(handler.HandleSearchData))
 
 	slog.Info("server listening on", "port", os.Getenv("HTTP_PORT"))

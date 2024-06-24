@@ -13,9 +13,7 @@ import (
 
 func HandleSearchData(w http.ResponseWriter, r *http.Request) error {
 
-	fmt.Println("Inside Searching")
 	searchString := ""
-	fmt.Println(r)
 	switch r.Header.Get("Content-Type") {
 	case "application/x-www-form-urlencoded":
 		b, err := io.ReadAll(r.Body)
@@ -37,4 +35,8 @@ func HandleSearchData(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return ui.DropDownContent(renderData, false).Render(r.Context(), w)
+}
+
+func HandleDropDown(w http.ResponseWriter, r *http.Request) error {
+	return ui.SearchDropDown(test, r.URL.Query().Get("selected")).Render(r.Context(), w)
 }
