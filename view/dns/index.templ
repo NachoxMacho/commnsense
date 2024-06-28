@@ -1,0 +1,63 @@
+package dns
+
+import "github.com/NachoxMacho/commnsense/pkg/opnsense/unbound"
+import "fmt"
+import "github.com/NachoxMacho/commnsense/view/layout"
+import networkingv1 "k8s.io/api/networking/v1"
+
+templ Index(records []unbound.DNSRecord, ingresses []networkingv1.Ingress) {
+	@layout.App(true, true) {
+		<div id="dns-table-div" class="overflow-x-auto">
+			<table class="table">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Host</th>
+						<th>Domain</th>
+						<th>IP Address</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					for i, record := range records {
+						<tr>
+							<th>{ fmt.Sprintf("%d", i) }</th>
+							<td>{ record.Hostname }</td>
+							<td>{ record.Domain }</td>
+							<td>{ record.Server.String() }</td>
+							<td>{ record.Description }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+        @IngressTable(ingresses)
+	}
+}
+
+templ IngressTable(ingresses []networkingv1.Ingress) {
+		<div id="ingress-table-div" class="overflow-x-auto">
+			<table class="table">
+				<thead>
+					<tr>
+						<th></th>
+						<th>URL</th>
+						<th>Ingress Name</th>
+						<th>Namespace</th>
+						<th>IP Address</th>
+					</tr>
+				</thead>
+				<tbody>
+					for i, ingress := range ingresses {
+						<tr>
+							<th>{ fmt.Sprintf("%d", i) }</th>
+							<td>{ ingress.Spec.Rules[0].Host }</td>
+							<td>{ ingress.Name }</td>
+							<td>{ ingress.Namespace }</td>
+							<td>{ ingress.Status.LoadBalancer.Ingress[0].IP }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+}

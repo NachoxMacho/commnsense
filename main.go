@@ -19,6 +19,12 @@ var FS embed.FS
 
 func main() {
 
+	err := godotenv.Load()
+	if err != nil {
+		slog.Warn("Error loading .env, continuing with existing environment variables")
+	}
+
+
 	if err := initAll(); err != nil {
 		log.Fatal(err)
 	}
@@ -29,6 +35,7 @@ func main() {
 	router.Get("/", handler.HTTPErrorHandler(handler.HandleHomeIndex))
 	router.Get("/dropdown", handler.HTTPErrorHandler(handler.HandleDropDown))
 	router.Post("/searchData", handler.HTTPErrorHandler(handler.HandleSearchData))
+	router.Get("/dns", handler.HTTPErrorHandler(handler.HandleDNSRecords))
 
 	slog.Info("server listening on", "port", os.Getenv("HTTP_PORT"))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), router))
