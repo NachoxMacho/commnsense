@@ -3,13 +3,14 @@ package unbound
 import (
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 )
 
-func GetDHCPLeases() ([]Lease, error) {
+func GetDHCPLeases() (leases []Lease, err error) {
 
 	request, err := http.NewRequest("GET", "https://opnsense.robowens.dev/api/dhcpv4/leases/searchLease", nil)
 	if err != nil {
@@ -38,7 +39,12 @@ func GetDHCPLeases() ([]Lease, error) {
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		closeErr := response.Body.Close()
+		if closeErr != nil {
+			err = errors.Join(err, closeErr)
+		}
+	}()
 	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
@@ -54,7 +60,7 @@ func GetDHCPLeases() ([]Lease, error) {
 		return nil, err
 	}
 
-	leases := make([]Lease, len(res.Rows))
+	leases = make([]Lease, len(res.Rows))
 	for i, l := range res.Rows {
 		if leases[i], err = convertAPILease(l); err != nil {
 			return nil, err

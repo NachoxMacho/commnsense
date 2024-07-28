@@ -3,6 +3,7 @@ package unbound
 import (
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -10,7 +11,7 @@ import (
 	"os"
 )
 
-func GetDNSRecords() ([]DNSRecord, error) {
+func GetDNSRecords() (records []DNSRecord, err error) {
 
 	request, err := http.NewRequest("GET", "https://opnsense.robowens.dev/api/unbound/settings/searchHostOverride", nil)
 	if err != nil {
@@ -41,7 +42,12 @@ func GetDNSRecords() ([]DNSRecord, error) {
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		closeErr := response.Body.Close()
+		if closeErr != nil {
+			err = errors.Join(err, closeErr)
+		}
+	}()
 	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
@@ -59,7 +65,7 @@ func GetDNSRecords() ([]DNSRecord, error) {
 
 	// fmt.Printf("Hello motherfucker")
 
-	records := make([]DNSRecord, len(res.Rows))
+	records = make([]DNSRecord, len(res.Rows))
 	for i, l := range res.Rows {
 		if records[i], err = convertAPIDNSRecord(l); err != nil {
 			return nil, err

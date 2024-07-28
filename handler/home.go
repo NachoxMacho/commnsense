@@ -3,48 +3,40 @@ package handler
 import (
 	"net/http"
 
-	"github.com/NachoxMacho/commnsense/pkg/opnsense/unbound"
+	"github.com/NachoxMacho/commnsense/pkg/opnsense"
 	"github.com/NachoxMacho/commnsense/types"
 	"github.com/NachoxMacho/commnsense/view/home"
 )
 
-var test = []types.SearchData{
-	{
-		Text:    "Hello",
-		Checked: false,
-	},
-	{
-		Text:    "Hello2",
-		Checked: false,
-	},
-	{
-		Text:    "Test",
-		Checked: true,
-	},
+
+func HandleNewHomeIndex(c Config) httpHandler {
+	return func(w http.ResponseWriter, r *http.Request) error {
+
+		data, err := getInterfaceSearchList(c)
+		if err != nil {
+			return err
+		}
+
+		return home.Index(data, "").Render(r.Context(), w)
+	}
 }
 
-func HandleHomeIndex(w http.ResponseWriter, r *http.Request) error {
-	data, err := unbound.GetDHCPLeases()
-	if err != nil {
-		return err
-	}
+func getInterfaceSearchList(c Config) ([]types.SearchData, error) {
+		interfaces, err := opnsense.GetInterfaces(c.OpnSense)
+		if err != nil {
+			return nil, err
+		}
 
-	input := []types.SearchData{}
-	dataLoop: for _, l := range data {
-		for _, i := range input {
-			if i.Text == l.Interface {
-				continue dataLoop
+
+		input := make([]types.SearchData, 0, len(interfaces))
+		for _, l := range interfaces {
+			d := types.SearchData{
+				Checked: false,
+				Text:    l.Device,
 			}
+			input = append(input, d)
 		}
-		d := types.SearchData{
-			Checked: false,
-			Text: l.Interface,
-		}
-		input = append(input, d)
 
-	}
-
-	input[0].Checked = true
-
-	return home.Index(input, "").Render(r.Context(), w)
+		input[0].Checked = true
+		return input, nil
 }

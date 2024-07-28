@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/NachoxMacho/commnsense/handler"
+	"github.com/NachoxMacho/commnsense/pkg/opnsense"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,6 +25,19 @@ func main() {
 		slog.Warn("Error loading .env, continuing with existing environment variables")
 	}
 
+	opnsenseConfig, err := opnsense.NewConfig(
+		opnsense.WithURL("https://opnsense.robowens.dev"),
+		opnsense.WithAuthentication(os.Getenv("OPNSENSE_USERNAME"), os.Getenv("OPNSENSE_PASSWORD")),
+	)
+	if err != nil {
+		slog.Error("Invalid Opnsense Configuration", slog.Attr{ Key: "Error", Value: slog.AnyValue(err) })
+	}
+
+	handlerConfig := handler.Config{
+		OpnSense: opnsenseConfig,
+	}
+
+	log.Println("OPNSENSE URL:", opnsenseConfig.BaseURL)
 
 	if err := initAll(); err != nil {
 		log.Fatal(err)
@@ -32,9 +46,9 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Handle("/*", http.StripPrefix("/", http.FileServerFS(FS)))
-	router.Get("/", handler.HTTPErrorHandler(handler.HandleHomeIndex))
-	router.Get("/dropdown", handler.HTTPErrorHandler(handler.HandleDropDown))
-	router.Post("/searchData", handler.HTTPErrorHandler(handler.HandleSearchData))
+	router.Get("/", handler.HTTPErrorHandler(handler.HandleNewHomeIndex(handlerConfig)))
+	router.Get("/dropdown", handler.HTTPErrorHandler(handler.HandleDropDown(handlerConfig)))
+	router.Post("/searchData", handler.HTTPErrorHandler(handler.HandleSearchData(handlerConfig)))
 	router.Get("/dns", handler.HTTPErrorHandler(handler.HandleDNSRecords))
 
 	slog.Info("server listening on", "port", os.Getenv("HTTP_PORT"))
